@@ -120,18 +120,16 @@ def _coerce(key: str, value: str):
 def load_overrides() -> dict[str, object]:
     """Read all persisted overrides from the DB as a {key: coerced_value} dict."""
     # Imported lazily to avoid a config<->db import cycle.
-    from sqlmodel import Session, select
+    from sqlmodel import Session, col, select
 
     from app.db import engine
     from app.models import SettingOverride
 
     with Session(engine) as session:
-        rows = session.exec(select(SettingOverride)).all()
-    return {
-        row.key: _coerce(row.key, row.value)
-        for row in rows
-        if row.key in OVERRIDABLE_KEYS
-    }
+        rows = session.exec(
+            select(SettingOverride).where(col(SettingOverride.key).in_(OVERRIDABLE_KEYS))
+        ).all()
+    return {row.key: _coerce(row.key, row.value) for row in rows}
 
 
 def get_effective_settings() -> Settings:
