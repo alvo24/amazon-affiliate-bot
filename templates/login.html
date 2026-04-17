@@ -3,24 +3,253 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login · Amazon Affiliate Bot</title>
+  <title>Affiliate Bot — post Amazon links to FB, IG, Pinterest & X on a schedule</title>
+  <meta name="description" content="Automate affiliate posting across Facebook, Instagram, Pinterest and Twitter/X. Paste a link, write a caption, and the bot ships it to every platform — on your schedule." />
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'><stop offset='0%25' stop-color='%237c3aed'/><stop offset='55%25' stop-color='%23ec4899'/><stop offset='100%25' stop-color='%23f97316'/></linearGradient></defs><rect width='64' height='64' rx='16' fill='url(%23g)'/><path d='M36 14 18 36h12l-4 14 18-22H32z' fill='white'/></svg>" />
   <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
 </head>
-<body class="center">
-  <div class="card login-card">
-    <div class="logo" aria-hidden="true">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+<body class="landing">
+
+  <header class="landing-nav">
+    <div class="nav-inner">
+      <a href="/" class="brand">
+        <span class="brand-mark">A</span>
+        <span class="brand-text">Affiliate Bot</span>
+      </a>
+      <nav class="landing-nav-links">
+        <a href="#features">Features</a>
+        <a href="#platforms">Platforms</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#signin" class="btn btn-primary btn-sm">Sign in</a>
+      </nav>
     </div>
-    <h1>Affiliate Bot</h1>
-    <p class="muted">Sign in to manage posts, schedules and credentials.</p>
-    {% if error %}<div class="alert alert-error"><strong>{{ error }}</strong></div>{% endif %}
-    <form method="post" action="/login">
-      <label style="text-align:left">
-        Password
-        <input type="password" name="password" autofocus required autocomplete="current-password" />
-      </label>
-      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Sign in</button>
-    </form>
-  </div>
+  </header>
+
+  <section class="hero-landing">
+    <div class="hero-landing-inner">
+      <div class="hero-copy">
+        <span class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          Affiliate marketing on autopilot
+        </span>
+        <h1 class="hero-title">
+          Post affiliate links to <span class="grad-text">every platform</span>,
+          on every schedule — without lifting a finger.
+        </h1>
+        <p class="hero-sub">
+          Paste an Amazon link once. The bot crafts captions, attaches images,
+          and ships the post to Facebook, Instagram, Pinterest and Twitter/X —
+          on a cron schedule or on demand.
+        </p>
+        <div class="hero-actions">
+          <a href="#signin" class="btn btn-primary btn-lg">
+            Sign in to dashboard
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+          <a href="#how-it-works" class="btn btn-lg">How it works</a>
+        </div>
+        <ul class="hero-meta">
+          <li><span class="dot ok"></span> Dry-run safe by default</li>
+          <li><span class="dot ok"></span> No redeploys to add tokens</li>
+          <li><span class="dot ok"></span> Works from phone or laptop</li>
+        </ul>
+      </div>
+
+      <aside class="hero-preview" aria-hidden="true">
+        <div class="hero-browser">
+          <div class="browser-dots"><span></span><span></span><span></span></div>
+          <div class="browser-url">affiliate-bot · /dashboard</div>
+          <div class="browser-body">
+            <div class="preview-row">
+              <div class="preview-tile facebook">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073C24 5.446 18.627.073 12 .073S0 5.446 0 12.073c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z"/></svg>
+                <div class="preview-label">Facebook</div><div class="preview-sub">Configured</div>
+              </div>
+              <div class="preview-tile instagram">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                <div class="preview-label">Instagram</div><div class="preview-sub">Configured</div>
+              </div>
+              <div class="preview-tile pinterest">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 0 0-4.37 23.17c-.11-.93-.2-2.36.04-3.38.22-.92 1.41-5.85 1.41-5.85s-.36-.72-.36-1.78c0-1.67.97-2.92 2.17-2.92 1.02 0 1.52.77 1.52 1.69 0 1.03-.65 2.57-.99 4-.28 1.2.6 2.18 1.78 2.18 2.14 0 3.78-2.26 3.78-5.52 0-2.89-2.07-4.91-5.03-4.91-3.43 0-5.44 2.57-5.44 5.22 0 1.03.4 2.14.89 2.74.1.12.11.23.08.36-.09.38-.3 1.2-.34 1.36-.05.22-.18.27-.41.16-1.52-.71-2.47-2.94-2.47-4.72 0-3.85 2.8-7.38 8.07-7.38 4.23 0 7.53 3.02 7.53 7.05 0 4.21-2.65 7.6-6.34 7.6-1.24 0-2.4-.64-2.8-1.41l-.76 2.9c-.28 1.05-1.01 2.37-1.51 3.17A12 12 0 1 0 12 0Z"/></svg>
+                <div class="preview-label">Pinterest</div><div class="preview-sub">Configured</div>
+              </div>
+              <div class="preview-tile twitter">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                <div class="preview-label">Twitter / X</div><div class="preview-sub">Configured</div>
+              </div>
+            </div>
+            <div class="preview-line">Next run · 6:00 PM UTC · 4 posts queued</div>
+            <div class="preview-actions">
+              <span class="preview-btn ghost">Post a link</span>
+              <span class="preview-btn primary">Run now →</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="section-head">
+      <span class="eyebrow"><span class="eyebrow-dot"></span> What it does</span>
+      <h2>Everything an affiliate needs, in one tab.</h2>
+      <p class="muted">Post manually, run on a cron, or let the bot fetch Amazon bestsellers and blast them out. All four social platforms, from the same dashboard.</p>
+    </div>
+    <div class="features-grid">
+      <article class="feature-card">
+        <div class="feature-icon grad-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9 22 2Z"/></svg>
+        </div>
+        <h3>Paste a link, post everywhere</h3>
+        <p class="muted">Drop your affiliate URL + caption + image. Tick which platforms to hit. Done.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon grad-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Cron-driven scheduler</h3>
+        <p class="muted">Default <code>9am / 1pm / 6pm</code> UTC — edit from Settings, no redeploy.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon grad-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+        </div>
+        <h3>Dry-run by default</h3>
+        <p class="muted">Every post is logged, nothing goes live until you flip the switch. Zero-risk setup.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon grad-4">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M3 11h18"/><path d="m16 19 2 2 4-4"/></svg>
+        </div>
+        <h3>Full run history</h3>
+        <p class="muted">Every run, every post, every success or failure — timestamped and searchable.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon grad-5">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>Credentials in the app</h3>
+        <p class="muted">Paste tokens into Settings, not into a terminal. Stored in the app's DB, not committed.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon grad-6">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14l-2 18H7L5 3Z"/><path d="M9 3v4"/><path d="M15 3v4"/></svg>
+        </div>
+        <h3>Amazon PA-API (optional)</h3>
+        <p class="muted">Bring PA-API keys to auto-fetch bestsellers, or just paste links manually — both work.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="platforms">
+    <div class="section-head">
+      <span class="eyebrow"><span class="eyebrow-dot"></span> Supported platforms</span>
+      <h2>Four networks, one dashboard.</h2>
+      <p class="muted">Official API integrations — no browser scraping, no account bans.</p>
+    </div>
+    <div class="logo-cloud">
+      <div class="logo-pill" style="--logo-color: var(--facebook)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073C24 5.446 18.627.073 12 .073S0 5.446 0 12.073c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z"/></svg>
+        <span>Facebook Page</span>
+      </div>
+      <div class="logo-pill" style="--logo-color: var(--instagram)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        <span>Instagram Business</span>
+      </div>
+      <div class="logo-pill" style="--logo-color: var(--pinterest)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 0 0-4.37 23.17c-.11-.93-.2-2.36.04-3.38.22-.92 1.41-5.85 1.41-5.85s-.36-.72-.36-1.78c0-1.67.97-2.92 2.17-2.92 1.02 0 1.52.77 1.52 1.69 0 1.03-.65 2.57-.99 4-.28 1.2.6 2.18 1.78 2.18 2.14 0 3.78-2.26 3.78-5.52 0-2.89-2.07-4.91-5.03-4.91-3.43 0-5.44 2.57-5.44 5.22 0 1.03.4 2.14.89 2.74.1.12.11.23.08.36-.09.38-.3 1.2-.34 1.36-.05.22-.18.27-.41.16-1.52-.71-2.47-2.94-2.47-4.72 0-3.85 2.8-7.38 8.07-7.38 4.23 0 7.53 3.02 7.53 7.05 0 4.21-2.65 7.6-6.34 7.6-1.24 0-2.4-.64-2.8-1.41l-.76 2.9c-.28 1.05-1.01 2.37-1.51 3.17A12 12 0 1 0 12 0Z"/></svg>
+        <span>Pinterest</span>
+      </div>
+      <div class="logo-pill" style="--logo-color: var(--twitter)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <span>Twitter / X</span>
+      </div>
+      <div class="logo-pill" style="--logo-color: var(--amazon)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.4 15.4c-.3-.3-1.1-.4-2.3-.3l-.4-.4c.5-.6.9-1.5.9-2.9 0-1.3-.4-2.3-1.1-3 .3-.9.1-1.9-.2-2.4l-.2-.3-.3.1a4.6 4.6 0 0 0-2 1.2c-.7-.2-1.5-.3-2.3-.3s-1.6.1-2.3.3a4.4 4.4 0 0 0-2-1.2l-.3-.1-.2.3c-.4.5-.5 1.5-.3 2.4-.7.7-1.1 1.7-1.1 3 0 1.4.3 2.3.9 2.9l-.4.4c-1.2-.1-2 0-2.3.3-.4.4-.3 1 0 1.3.8.7 2.5.3 3.1.2.3.5.8.9 1.3 1.2.6.4 2.1.4 3 .4 1 0 2.5 0 3-.4.6-.3 1-.8 1.4-1.3.6.1 2.2.5 3-.2.4-.3.5-.9.1-1.3z"/></svg>
+        <span>Amazon PA-API</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how-it-works">
+    <div class="section-head">
+      <span class="eyebrow"><span class="eyebrow-dot"></span> Three steps</span>
+      <h2>From zero to auto-posting in under 10 minutes.</h2>
+    </div>
+    <ol class="steps">
+      <li>
+        <span class="step-num">1</span>
+        <div>
+          <h4>Paste credentials</h4>
+          <p class="muted">Drop your FB / IG / Pinterest / X tokens into the Settings page. No terminal, no redeploys. Dry-run is on by default.</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <div>
+          <h4>Test with a dry run</h4>
+          <p class="muted">Click "Run now" or use "Post a link". The bot logs every call and shows a per-platform result — verify without publishing.</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <div>
+          <h4>Flip the switch</h4>
+          <p class="muted">Uncheck Dry-run in Settings. From then on, every scheduled run and every manual post goes live.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section signin-section" id="signin">
+    <div class="signin-wrap">
+      <div class="signin-intro">
+        <h2>Sign in to your dashboard</h2>
+        <p class="muted">Use the admin password you configured. Forgot it? Reset via the environment variable <code>APP_ADMIN_PASSWORD</code>.</p>
+      </div>
+      <div class="card signin-card">
+        {% if error %}<div class="alert alert-error" role="alert"><strong>{{ error }}</strong></div>{% endif %}
+        <form method="post" action="/login" autocomplete="off">
+          <label>
+            Password
+            <input type="password" name="password" autofocus required autocomplete="current-password" placeholder="Your admin password" />
+          </label>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center">
+            Sign in
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <a href="/" class="brand">
+          <span class="brand-mark">A</span>
+          <span class="brand-text">Affiliate Bot</span>
+        </a>
+        <p class="muted" style="max-width:28rem;margin-top:.5rem">Self-hosted affiliate posting for Amazon Associates. Post manually, schedule, or both. Open source.</p>
+      </div>
+      <div class="footer-cols">
+        <div>
+          <h5>Product</h5>
+          <a href="#features">Features</a>
+          <a href="#platforms">Platforms</a>
+          <a href="#how-it-works">How it works</a>
+        </div>
+        <div>
+          <h5>Links</h5>
+          <a href="https://github.com/alvo24/amazon-affiliate-bot" target="_blank" rel="noopener">GitHub</a>
+          <a href="#signin">Sign in</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span class="muted">Built with FastAPI · Deployed on Fly.io · © Affiliate Bot</span>
+    </div>
+  </footer>
+
 </body>
 </html>
