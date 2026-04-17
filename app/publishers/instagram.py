@@ -8,7 +8,7 @@ import logging
 import httpx
 
 from app.amazon import ProductInfo
-from app.publishers.base import PostResult, Publisher
+from app.publishers.base import PostResult, Publisher, sanitize_error_body
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class InstagramPublisher(Publisher):
                     },
                 )
                 if create.status_code >= 400:
-                    return PostResult(status="failed", message=create.text[:500])
+                    return PostResult(status="failed", message=sanitize_error_body(create.text))
                 creation_id = create.json().get("id")
                 if not creation_id:
                     return PostResult(status="failed", message="no creation id returned")
@@ -59,7 +59,9 @@ class InstagramPublisher(Publisher):
                         params={"fields": "status_code", "access_token": token},
                     )
                     if status_resp.status_code >= 400:
-                        return PostResult(status="failed", message=status_resp.text[:500])
+                        return PostResult(
+                            status="failed", message=sanitize_error_body(status_resp.text)
+                        )
                     if status_resp.json().get("status_code") == "FINISHED":
                         break
 
@@ -69,7 +71,7 @@ class InstagramPublisher(Publisher):
                     data={"creation_id": creation_id, "access_token": token},
                 )
                 if publish.status_code >= 400:
-                    return PostResult(status="failed", message=publish.text[:500])
+                    return PostResult(status="failed", message=sanitize_error_body(publish.text))
                 remote_id = publish.json().get("id")
                 return PostResult(status="success", remote_id=remote_id)
         except httpx.HTTPError as exc:

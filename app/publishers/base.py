@@ -2,10 +2,30 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from app.amazon import ProductInfo
 from app.config import Settings
+
+# Hard cap we apply to any upstream error body we persist in `Post.message`
+# before it's rendered back on the dashboard. 500+ chars was enough room for
+# Meta/Pinterest responses to occasionally echo the query string (including
+# the bearer token) back at us.
+_ERROR_BODY_MAX = 200
+
+_ACCESS_TOKEN_RE = re.compile(
+    r"""(["']?(?:access_token|access-token|token|bearer)["']?\s*[:=]\s*["']?)[^"'&\s]+""",
+    re.IGNORECASE,
+)
+
+
+def sanitize_error_body(body: str | None) -> str | None:
+    """Redact anything that looks like an access token before persisting/rendering."""
+    if not body:
+        return body
+    scrubbed = _ACCESS_TOKEN_RE.sub(r"\1[REDACTED]", body)
+    return scrubbed[:_ERROR_BODY_MAX]
 
 
 @dataclass

@@ -6,6 +6,7 @@ import logging
 import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
+from urllib.parse import urlparse
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -14,7 +15,13 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, desc, select
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.config import OVERRIDABLE_KEYS, SECRET_KEYS, get_effective_settings, get_settings
+from app.config import (
+    OVERRIDABLE_KEYS,
+    SECRET_KEYS,
+    get_effective_settings,
+    get_settings,
+    validate_production_settings,
+)
 from app.db import engine, init_db
 from app.models import Post, Product, RunLog, SettingOverride
 from app.scheduler import get_scheduler, start_scheduler, stop_scheduler
@@ -29,10 +36,14 @@ STATIC_DIR = BASE_DIR / "static"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # noqa: ARG001
+    settings = get_settings()
     logging.basicConfig(
-        level=get_settings().log_level.upper(),
+        level=settings.log_level.upper(),
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
+    # Refuse to serve traffic with the known `.env.example` placeholders;
+    # otherwise anyone on the internet can forge sessions or log in.
+    validate_production_settings(settings)
     init_db()
     start_scheduler()
     yield
@@ -40,9 +51,41 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
 
 
 app = FastAPI(title="Amazon Affiliate Bot", lifespan=lifespan)
-app.add_middleware(SessionMiddleware, secret_key=get_settings().app_secret)
+_settings = get_settings()
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=_settings.app_secret,
+    # Starlette's default is `lax`, which blocks cross-site POST CSRF. Make it
+    # explicit so a future upgrade that loosens the default doesn't surprise us.
+    same_site="lax",
+    # Require HTTPS for the session cookie in production. Disable via env
+    # (`COOKIE_SECURE=false`) when running locally over plain HTTP.
+    https_only=_settings.cookie_secure,
+    max_age=_settings.session_max_age,
+)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+
+# --------------------------------------------------------------------------- #
+# Validation helpers
+# --------------------------------------------------------------------------- #
+
+_ALLOWED_URL_SCHEMES: frozenset[str] = frozenset({"http", "https"})
+# Generous upper bound — Amazon URLs with a tag are usually ~150 chars; this
+# leaves headroom while preventing obviously abusive inputs from being persisted.
+_MAX_URL_LENGTH = 2048
+
+
+def _is_safe_http_url(value: str) -> bool:
+    """Return True only for ``http://`` / ``https://`` URLs with a host."""
+    if not value or len(value) > _MAX_URL_LENGTH:
+        return False
+    try:
+        parsed = urlparse(value)
+    except ValueError:
+        return False
+    return parsed.scheme.lower() in _ALLOWED_URL_SCHEMES and bool(parsed.netloc)
 
 
 # --------------------------------------------------------------------------- #
@@ -184,7 +227,7 @@ async def post_link_submit(
         "platforms": chosen,
     }
 
-    if not cleaned_url or not cleaned_caption:
+    def _reject(message: str) -> HTMLResponse:
         return templates.TemplateResponse(
             request,
             "post_link.html",
@@ -193,10 +236,20 @@ async def post_link_submit(
                 "enabled_platforms": settings.platform_list,
                 "result": None,
                 "form": form_state,
-                "error": "URL and caption are both required.",
+                "error": message,
             },
             status_code=400,
         )
+
+    if not cleaned_url or not cleaned_caption:
+        return _reject("URL and caption are both required.")
+    if not _is_safe_http_url(cleaned_url):
+        # Blocks `javascript:`, `data:`, `file:`, unbounded lengths, etc. — any
+        # of which would get rendered as an `<a href>` on the product page and
+        # trigger XSS / local-file probes for the next admin to click through.
+        return _reject("Affiliate URL must be an http:// or https:// link.")
+    if cleaned_image is not None and not _is_safe_http_url(cleaned_image):
+        return _reject("Image URL must be an http:// or https:// link.")
 
     summary = await post_manual(
         affiliate_url=cleaned_url,
@@ -226,6 +279,11 @@ async def settings_form(request: Request, _: None = Depends(require_login), save
     overrides = {r.key: r.value for r in rows}
 
     def current(key: str) -> str:
+        # Never echo secret values back into HTML — they end up in the DOM,
+        # the browser cache and any saved-page dump. Surface a boolean
+        # "configured" flag via has_override instead.
+        if key in SECRET_KEYS:
+            return ""
         val = overrides.get(key)
         if val is None:
             val = getattr(settings, key, "")
@@ -261,6 +319,11 @@ async def settings_submit(request: Request, _: None = Depends(require_login)):
 
             row = session.get(SettingOverride, key)
             if new_val == "":
+                # Because we no longer pre-populate secret fields in the form,
+                # a blank secret means "leave existing override alone" rather
+                # than "revert to env / insecure default".
+                if key in SECRET_KEYS:
+                    continue
                 if row is not None:
                     session.delete(row)
                 continue

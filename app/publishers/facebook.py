@@ -7,7 +7,7 @@ import logging
 import httpx
 
 from app.amazon import ProductInfo
-from app.publishers.base import PostResult, Publisher
+from app.publishers.base import PostResult, Publisher, sanitize_error_body
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class FacebookPublisher(Publisher):
             async with httpx.AsyncClient(timeout=30) as client:
                 resp = await client.post(url, data=data)
             if resp.status_code >= 400:
-                return PostResult(status="failed", message=resp.text[:500])
+                return PostResult(status="failed", message=sanitize_error_body(resp.text))
             payload = resp.json()
             remote_id = payload.get("post_id") or payload.get("id")
             return PostResult(status="success", remote_id=remote_id)
