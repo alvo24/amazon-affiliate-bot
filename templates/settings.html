@@ -94,6 +94,30 @@
   </section>
 
   <section class="card">
+    <h3>Twitter / X <span class="muted">— needs "Elevated" developer access</span></h3>
+    <p class="muted" style="margin-top:0">
+      Create an app at <a href="https://developer.twitter.com/en/portal/dashboard" target="_blank" rel="noopener">developer.twitter.com</a>,
+      set it to <strong>Read &amp; Write</strong>, then generate <strong>Consumer Keys</strong> and <strong>Access Token &amp; Secret</strong>.
+    </p>
+    <label>
+      API Key <span class="muted">(Consumer Key)</span>
+      <input type="text" name="twitter_api_key" value="{{ values.twitter_api_key }}" autocomplete="off" />
+    </label>
+    <label>
+      API Secret <span class="muted">(Consumer Secret)</span>
+      <input type="password" name="twitter_api_secret" value="{{ values.twitter_api_secret }}" autocomplete="new-password" />
+    </label>
+    <label>
+      Access Token
+      <input type="text" name="twitter_access_token" value="{{ values.twitter_access_token }}" autocomplete="off" />
+    </label>
+    <label>
+      Access Token Secret
+      <input type="password" name="twitter_access_token_secret" value="{{ values.twitter_access_token_secret }}" autocomplete="new-password" />
+    </label>
+  </section>
+
+  <section class="card">
     <h3>Amazon PA-API <span class="muted">(optional — only if using auto-posting)</span></h3>
     <label>
       Access Key

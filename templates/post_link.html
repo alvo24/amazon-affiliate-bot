@@ -73,12 +73,12 @@
 
     <fieldset style="border:none;padding:0;margin:0 0 1.25rem 0">
       <legend class="muted" style="margin-bottom:.5rem">Post to</legend>
-      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+      <div class="chips">
       {% for p in enabled_platforms %}
-        <label style="display:inline-flex;align-items:center;gap:.5rem;padding:.45rem .85rem;border:1px solid var(--border-strong);border-radius:999px;background:rgba(255,255,255,.03);font-weight:500;cursor:pointer;text-transform:capitalize;margin:0">
+        <label class="chip" data-platform="{{ p }}">
           <input type="checkbox" name="platforms" value="{{ p }}"
                  {% if p in form.platforms %}checked{% endif %} />
-          {{ p }}
+          <span class="dot"></span>{{ p }}
         </label>
       {% endfor %}
       </div>

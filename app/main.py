@@ -118,6 +118,7 @@ async def dashboard(request: Request, _: None = Depends(require_login)):
                 "facebook_configured": settings.facebook_configured(),
                 "instagram_configured": settings.instagram_configured(),
                 "pinterest_configured": settings.pinterest_configured(),
+                "twitter_configured": settings.twitter_configured(),
                 "dry_run": settings.dry_run,
                 "next_run": next_run,
                 "cron": settings.post_schedule_cron,
@@ -292,6 +293,7 @@ async def api_status(_: None = Depends(require_login)):
         "facebook_configured": settings.facebook_configured(),
         "instagram_configured": settings.instagram_configured(),
         "pinterest_configured": settings.pinterest_configured(),
+        "twitter_configured": settings.twitter_configured(),
         "enabled_platforms": settings.platform_list,
     }
 

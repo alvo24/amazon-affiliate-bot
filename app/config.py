@@ -40,6 +40,12 @@ class Settings(BaseSettings):
     pinterest_access_token: str = ""
     pinterest_board_id: str = ""
 
+    # Twitter / X (OAuth 1.0a user context)
+    twitter_api_key: str = ""
+    twitter_api_secret: str = ""
+    twitter_access_token: str = ""
+    twitter_access_token_secret: str = ""
+
     # Scheduling
     post_schedule_cron: str = "0 9,13,18 * * *"
     timezone: str = "UTC"
@@ -49,7 +55,7 @@ class Settings(BaseSettings):
         "🔥 {title}\n\n💰 {price}\n\n{features}\n\n"
         "👉 Shop here: {url}\n\n#amazonfinds #affiliate #shopping"
     )
-    enabled_platforms: str = "facebook,instagram,pinterest"
+    enabled_platforms: str = "facebook,instagram,pinterest,twitter"
 
     # ---- Derived helpers ----
 
@@ -73,6 +79,14 @@ class Settings(BaseSettings):
     def pinterest_configured(self) -> bool:
         return bool(self.pinterest_access_token and self.pinterest_board_id)
 
+    def twitter_configured(self) -> bool:
+        return bool(
+            self.twitter_api_key
+            and self.twitter_api_secret
+            and self.twitter_access_token
+            and self.twitter_access_token_secret
+        )
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
@@ -95,6 +109,10 @@ OVERRIDABLE_KEYS: tuple[str, ...] = (
     "instagram_access_token",
     "pinterest_access_token",
     "pinterest_board_id",
+    "twitter_api_key",
+    "twitter_api_secret",
+    "twitter_access_token",
+    "twitter_access_token_secret",
     "post_schedule_cron",
     "timezone",
     "caption_template",
@@ -107,6 +125,8 @@ SECRET_KEYS: frozenset[str] = frozenset({
     "facebook_page_access_token",
     "instagram_access_token",
     "pinterest_access_token",
+    "twitter_api_secret",
+    "twitter_access_token_secret",
 })
 
 

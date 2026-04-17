@@ -19,6 +19,7 @@ from app.publishers import (
     InstagramPublisher,
     PinterestPublisher,
     Publisher,
+    TwitterPublisher,
 )
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,7 @@ _PUBLISHER_REGISTRY: dict[str, type[Publisher]] = {
     "facebook": FacebookPublisher,
     "instagram": InstagramPublisher,
     "pinterest": PinterestPublisher,
+    "twitter": TwitterPublisher,
 }
 
 
