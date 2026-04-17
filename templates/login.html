@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login · Amazon Affiliate Bot</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
+</head>
+<body class="center">
+  <div class="card" style="max-width:360px">
+    <h1>🛒 Affiliate Bot</h1>
+    <p class="muted">Enter admin password to continue.</p>
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+    <form method="post" action="/login">
+      <label>
+        Password
+        <input type="password" name="password" autofocus required />
+      </label>
+      <button type="submit" class="btn btn-primary" style="width:100%">Sign in</button>
+    </form>
+  </div>
+</body>
+</html>

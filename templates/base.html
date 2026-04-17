@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Amazon Affiliate Bot{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="brand">🛒 Affiliate Bot</a>
+      <div class="nav-links">
+        <a href="/">Dashboard</a>
+        <a href="/products">Products</a>
+        <form method="post" action="/logout" style="display:inline">
+          <button type="submit" class="link-button">Logout</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

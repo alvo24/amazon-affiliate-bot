@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Amazon Affiliate Bot{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+{% if status.dry_run %}
+<div class="alert alert-warn">
+  <strong>Dry-run mode is ON.</strong> Products are mocked and posts are logged but not published.
+  Set <code>DRY_RUN=false</code> in <code>.env</code> once all API keys are configured.
+</div>
+{% endif %}
+
+<section class="grid">
+  <div class="card">
+    <h3>Amazon PA-API</h3>
+    <span class="badge {{ 'ok' if status.amazon_configured else 'warn' }}">
+      {{ 'Configured' if status.amazon_configured else 'Not configured' }}
+    </span>
+    <p class="muted">Categories: {{ status.browse_nodes | join(', ') or 'none' }}</p>
+    <p class="muted">{{ status.product_count }} product(s) cached</p>
+  </div>
+  <div class="card">
+    <h3>Facebook Page</h3>
+    <span class="badge {{ 'ok' if status.facebook_configured else 'warn' }}">
+      {{ 'Configured' if status.facebook_configured else 'Not configured' }}
+    </span>
+    <p class="muted">Enabled: {{ 'yes' if 'facebook' in status.enabled_platforms else 'no' }}</p>
+  </div>
+  <div class="card">
+    <h3>Instagram Business</h3>
+    <span class="badge {{ 'ok' if status.instagram_configured else 'warn' }}">
+      {{ 'Configured' if status.instagram_configured else 'Not configured' }}
+    </span>
+    <p class="muted">Enabled: {{ 'yes' if 'instagram' in status.enabled_platforms else 'no' }}</p>
+  </div>
+  <div class="card">
+    <h3>Pinterest</h3>
+    <span class="badge {{ 'ok' if status.pinterest_configured else 'warn' }}">
+      {{ 'Configured' if status.pinterest_configured else 'Not configured' }}
+    </span>
+    <p class="muted">Enabled: {{ 'yes' if 'pinterest' in status.enabled_platforms else 'no' }}</p>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Scheduler</h3>
+  <p>Cron: <code>{{ status.cron }}</code> ({{ status.timezone }})</p>
+  <p>Next run: <code>{{ status.next_run or 'n/a' }}</code></p>
+  <form method="post" action="/run-now">
+    <button type="submit" class="btn btn-primary">Run now</button>
+  </form>
+</section>
+
+<section>
+  <h2>Recent runs</h2>
+  {% if recent_runs %}
+  <table>
+    <thead><tr>
+      <th>Started</th><th>Finished</th><th>Fetched</th>
+      <th>Attempted</th><th>Success</th><th>Failed</th><th>Error</th>
+    </tr></thead>
+    <tbody>
+    {% for r in recent_runs %}
+      <tr>
+        <td>{{ r.started_at.strftime('%Y-%m-%d %H:%M UTC') }}</td>
+        <td>{{ r.finished_at.strftime('%Y-%m-%d %H:%M UTC') if r.finished_at else '—' }}</td>
+        <td>{{ r.products_fetched }}</td>
+        <td>{{ r.posts_attempted }}</td>
+        <td>{{ r.posts_succeeded }}</td>
+        <td>{{ r.posts_failed }}</td>
+        <td class="muted">{{ r.error or '' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No runs yet. Click <strong>Run now</strong> above to trigger one.</p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Recent posts</h2>
+  {% if recent_posts %}
+  <table>
+    <thead><tr>
+      <th>When</th><th>ASIN</th><th>Platform</th><th>Status</th><th>Remote ID</th><th>Message</th>
+    </tr></thead>
+    <tbody>
+    {% for p in recent_posts %}
+      <tr>
+        <td>{{ p.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</td>
+        <td><code>{{ p.asin }}</code></td>
+        <td>{{ p.platform }}</td>
+        <td>
+          <span class="badge {{ 'ok' if p.status == 'success' else ('warn' if p.status == 'skipped' else 'err') }}">
+            {{ p.status }}
+          </span>
+        </td>
+        <td class="muted"><code>{{ p.remote_id or '' }}</code></td>
+        <td class="muted">{{ p.message or '' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No posts yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

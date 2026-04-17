@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Products · Amazon Affiliate Bot{% endblock %}
+{% block content %}
+<h1>Cached products</h1>
+{% if products %}
+<div class="product-grid">
+  {% for p in products %}
+  <div class="card product">
+    {% if p.image_url %}
+    <img src="{{ p.image_url }}" alt="{{ p.title }}" loading="lazy" />
+    {% endif %}
+    <h4>{{ p.title }}</h4>
+    <p><strong>{{ p.price or 'See price on Amazon' }}</strong></p>
+    <p class="muted">ASIN: <code>{{ p.asin }}</code></p>
+    <p><a href="{{ p.affiliate_url }}" target="_blank" rel="noopener">Affiliate link ↗</a></p>
+    <p class="muted">Fetched: {{ p.fetched_at.strftime('%Y-%m-%d %H:%M UTC') }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="muted">No products fetched yet. Run the scheduler or click <strong>Run now</strong> on the dashboard.</p>
+{% endif %}
+{% endblock %}
