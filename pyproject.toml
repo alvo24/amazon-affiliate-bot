@@ -5,7 +5,7 @@ description = "Automated Amazon affiliate marketing bot that posts trending prod
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi>=0.115.0",
+    "fastapi[standard]>=0.115.0",
     "uvicorn[standard]>=0.32.0",
     "jinja2>=3.1.4",
     "python-multipart>=0.0.12",

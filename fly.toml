@@ -1,5 +1,5 @@
 # fly.toml — rename `app` below before `fly launch`.
-app = "amazon-affiliate-bot"
+app = "alvo-affiliate-bot"
 primary_region = "ord"
 
 [build]
