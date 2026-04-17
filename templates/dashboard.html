@@ -1,54 +1,81 @@
 {% extends "base.html" %}
 {% block title %}Dashboard · Amazon Affiliate Bot{% endblock %}
 {% block content %}
-<h1>Dashboard</h1>
+<div class="hero">
+  <div>
+    <h1>Dashboard</h1>
+    <p class="muted">Connected platforms, scheduler status and recent activity.</p>
+  </div>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+    <a href="/post-link" class="btn">Post a link</a>
+    <form method="post" action="/run-now" style="margin:0">
+      <button type="submit" class="btn btn-primary">Run now</button>
+    </form>
+  </div>
+</div>
 
 {% if status.dry_run %}
 <div class="alert alert-warn">
   <strong>Dry-run mode is ON.</strong> Products are mocked and posts are logged but not published.
-  Set <code>DRY_RUN=false</code> in <code>.env</code> once all API keys are configured.
+  Flip it off in <a href="/settings">Settings</a> when your tokens are verified.
+</div>
+{% else %}
+<div class="alert alert-error">
+  <strong>Live mode.</strong> Posts submitted now will publish to your real Facebook / Instagram / Pinterest accounts.
 </div>
 {% endif %}
 
 <section class="grid">
   <div class="card">
-    <h3>Amazon PA-API</h3>
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#ff9900" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h12"/></svg>
+      Amazon PA-API
+    </h3>
     <span class="badge {{ 'ok' if status.amazon_configured else 'warn' }}">
       {{ 'Configured' if status.amazon_configured else 'Not configured' }}
     </span>
-    <p class="muted">Categories: {{ status.browse_nodes | join(', ') or 'none' }}</p>
+    <p class="muted" style="margin-top:.65rem">Categories: {{ status.browse_nodes | join(', ') or 'none' }}</p>
     <p class="muted">{{ status.product_count }} product(s) cached</p>
   </div>
   <div class="card">
-    <h3>Facebook Page</h3>
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073C24 5.446 18.627.073 12 .073S0 5.446 0 12.073c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z"/></svg>
+      Facebook Page
+    </h3>
     <span class="badge {{ 'ok' if status.facebook_configured else 'warn' }}">
       {{ 'Configured' if status.facebook_configured else 'Not configured' }}
     </span>
-    <p class="muted">Enabled: {{ 'yes' if 'facebook' in status.enabled_platforms else 'no' }}</p>
+    <p class="muted" style="margin-top:.65rem">Enabled: {{ 'yes' if 'facebook' in status.enabled_platforms else 'no' }}</p>
   </div>
   <div class="card">
-    <h3>Instagram Business</h3>
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#E4405F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      Instagram Business
+    </h3>
     <span class="badge {{ 'ok' if status.instagram_configured else 'warn' }}">
       {{ 'Configured' if status.instagram_configured else 'Not configured' }}
     </span>
-    <p class="muted">Enabled: {{ 'yes' if 'instagram' in status.enabled_platforms else 'no' }}</p>
+    <p class="muted" style="margin-top:.65rem">Enabled: {{ 'yes' if 'instagram' in status.enabled_platforms else 'no' }}</p>
   </div>
   <div class="card">
-    <h3>Pinterest</h3>
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="#E60023"><path d="M12 0a12 12 0 0 0-4.37 23.17c-.11-.93-.2-2.36.04-3.38.22-.92 1.41-5.85 1.41-5.85s-.36-.72-.36-1.78c0-1.67.97-2.92 2.17-2.92 1.02 0 1.52.77 1.52 1.69 0 1.03-.65 2.57-.99 4-.28 1.2.6 2.18 1.78 2.18 2.14 0 3.78-2.26 3.78-5.52 0-2.89-2.07-4.91-5.03-4.91-3.43 0-5.44 2.57-5.44 5.22 0 1.03.4 2.14.89 2.74.1.12.11.23.08.36-.09.38-.3 1.2-.34 1.36-.05.22-.18.27-.41.16-1.52-.71-2.47-2.94-2.47-4.72 0-3.85 2.8-7.38 8.07-7.38 4.23 0 7.53 3.02 7.53 7.05 0 4.21-2.65 7.6-6.34 7.6-1.24 0-2.4-.64-2.8-1.41l-.76 2.9c-.28 1.05-1.01 2.37-1.51 3.17A12 12 0 1 0 12 0Z"/></svg>
+      Pinterest
+    </h3>
     <span class="badge {{ 'ok' if status.pinterest_configured else 'warn' }}">
       {{ 'Configured' if status.pinterest_configured else 'Not configured' }}
     </span>
-    <p class="muted">Enabled: {{ 'yes' if 'pinterest' in status.enabled_platforms else 'no' }}</p>
+    <p class="muted" style="margin-top:.65rem">Enabled: {{ 'yes' if 'pinterest' in status.enabled_platforms else 'no' }}</p>
   </div>
 </section>
 
 <section class="card">
-  <h3>Scheduler</h3>
-  <p>Cron: <code>{{ status.cron }}</code> ({{ status.timezone }})</p>
+  <h3>
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Scheduler
+  </h3>
+  <p>Cron: <code>{{ status.cron }}</code> <span class="muted">({{ status.timezone }})</span></p>
   <p>Next run: <code>{{ status.next_run or 'n/a' }}</code></p>
-  <form method="post" action="/run-now">
-    <button type="submit" class="btn btn-primary">Run now</button>
-  </form>
 </section>
 
 <section>

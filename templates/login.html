@@ -7,16 +7,19 @@
   <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
 </head>
 <body class="center">
-  <div class="card" style="max-width:360px">
-    <h1>🛒 Affiliate Bot</h1>
-    <p class="muted">Enter admin password to continue.</p>
-    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+  <div class="card login-card">
+    <div class="logo" aria-hidden="true">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    </div>
+    <h1>Affiliate Bot</h1>
+    <p class="muted">Sign in to manage posts, schedules and credentials.</p>
+    {% if error %}<div class="alert alert-error"><strong>{{ error }}</strong></div>{% endif %}
     <form method="post" action="/login">
-      <label>
+      <label style="text-align:left">
         Password
-        <input type="password" name="password" autofocus required />
+        <input type="password" name="password" autofocus required autocomplete="current-password" />
       </label>
-      <button type="submit" class="btn btn-primary" style="width:100%">Sign in</button>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Sign in</button>
     </form>
   </div>
 </body>

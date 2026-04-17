@@ -1,26 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Post a link · Amazon Affiliate Bot{% endblock %}
 {% block content %}
-<h1>Post a link</h1>
-<p class="muted">
-  Paste an affiliate URL and a caption. The bot will post it to the platforms
-  you pick — no Amazon API needed.
-</p>
+<div class="hero">
+  <div>
+    <h1>Post a link</h1>
+    <p class="muted">Paste an affiliate URL, pick platforms, click post. No Amazon API needed.</p>
+  </div>
+  <a href="/" class="btn btn-ghost">← Back to dashboard</a>
+</div>
 
 {% if settings.dry_run %}
 <div class="alert alert-warn">
-  <strong>Dry-run mode is ON.</strong> Submitting this form will record the
-  attempt in your post history but will NOT publish to any platform. Set
-  <code>DRY_RUN=false</code> in your Fly secrets to go live.
+  <strong>Dry-run mode is ON.</strong> Submissions are recorded in post history but NOT published.
+  Toggle in <a href="/settings">Settings</a> when ready.
 </div>
 {% endif %}
 
 {% if error %}
-<div class="alert alert-error">{{ error }}</div>
+<div class="alert alert-error"><strong>{{ error }}</strong></div>
 {% endif %}
 
 {% if result %}
-<div class="alert {{ 'alert-error' if result.get('error') or result.posts_failed else 'alert-warn' }}">
+<div class="alert {{ 'alert-error' if result.get('error') or result.posts_failed else ('alert-warn' if result.posts_skipped else 'alert-ok') }}">
   <strong>Done.</strong>
   attempted={{ result.posts_attempted }}
   · success={{ result.posts_succeeded }}
@@ -70,15 +71,17 @@
                 placeholder="What do you want to say about this product? Emojis + hashtags welcome.">{{ form.caption }}</textarea>
     </label>
 
-    <fieldset style="border:none;padding:0;margin:0 0 1rem 0">
-      <legend class="muted">Post to</legend>
+    <fieldset style="border:none;padding:0;margin:0 0 1.25rem 0">
+      <legend class="muted" style="margin-bottom:.5rem">Post to</legend>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
       {% for p in enabled_platforms %}
-      <label style="display:inline-flex;align-items:center;gap:.4rem;margin-right:1rem;font-weight:normal">
-        <input type="checkbox" name="platforms" value="{{ p }}"
-               {% if p in form.platforms %}checked{% endif %} />
-        {{ p }}
-      </label>
+        <label style="display:inline-flex;align-items:center;gap:.5rem;padding:.45rem .85rem;border:1px solid var(--border-strong);border-radius:999px;background:rgba(255,255,255,.03);font-weight:500;cursor:pointer;text-transform:capitalize;margin:0">
+          <input type="checkbox" name="platforms" value="{{ p }}"
+                 {% if p in form.platforms %}checked{% endif %} />
+          {{ p }}
+        </label>
       {% endfor %}
+      </div>
     </fieldset>
 
     <button type="submit" class="btn btn-primary">Post now</button>

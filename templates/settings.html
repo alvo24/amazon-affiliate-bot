@@ -1,33 +1,36 @@
 {% extends "base.html" %}
 {% block title %}Settings · Amazon Affiliate Bot{% endblock %}
 {% block content %}
-<h1>Settings</h1>
-<p class="muted">
-  Paste your credentials here. Values are stored in the app's database and
-  override environment variables at runtime — no redeploy or shell access
-  needed. Leave a field blank to fall back to the env var / default.
-</p>
+<div class="hero">
+  <div>
+    <h1>Settings</h1>
+    <p class="muted">Paste your credentials here — stored in the app's DB and applied at runtime. No redeploy needed.</p>
+  </div>
+  <a href="/" class="btn btn-ghost">← Back to dashboard</a>
+</div>
 
 {% if saved %}
-<div class="alert alert-warn"><strong>Saved.</strong> Your new settings are active.</div>
+<div class="alert alert-ok"><strong>Saved.</strong> Your new settings are active.</div>
+{% endif %}
+
+{% if values.dry_run in ('true', 'True', '1') %}
+<div class="alert alert-ok">
+  Dry-run is <strong>ON</strong>. Posts are logged but not published — safe to experiment.
+</div>
+{% else %}
+<div class="alert alert-error">
+  Dry-run is <strong>OFF</strong>. The next <em>Post now</em> will publish to your real accounts.
+</div>
 {% endif %}
 
 <form method="post" action="/settings">
   <section class="card">
     <h3>General</h3>
-    <label style="display:inline-flex;align-items:center;gap:.4rem;font-weight:normal">
+    <label style="display:flex;align-items:center;gap:.5rem;font-weight:500;margin-bottom:.4rem">
       <input type="checkbox" name="dry_run" value="1" {% if values.dry_run in ('true', 'True', '1') %}checked{% endif %} />
       Dry-run mode (log posts but don't publish)
-      <span class="muted">
-        — currently
-        {% if values.dry_run in ('true', 'True', '1') %}
-          <strong style="color:#0a7d2b">ON</strong> (safe; no real posts)
-        {% else %}
-          <strong style="color:#b42318">OFF</strong> (real posts will be published!)
-        {% endif %}
-      </span>
     </label>
-    <p class="muted" style="margin:.25rem 0 1rem 2rem">
+    <p class="muted" style="margin:.25rem 0 1.25rem 1.5rem">
       <strong>Warning:</strong> unchecking this and saving will cause your next
       <em>Post now</em> to publish to your real Facebook / Instagram / Pinterest
       accounts. Leave it checked until your tokens are verified.
