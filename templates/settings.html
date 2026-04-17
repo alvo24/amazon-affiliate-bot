@@ -37,7 +37,8 @@
     </p>
     <label>
       Admin password
-      <input type="password" name="app_admin_password" value="{{ values.app_admin_password }}" autocomplete="new-password" />
+      {% set ap_status = '(set — leave blank to keep)' if has_override.app_admin_password else '(using env / default — set a strong value!)' %}
+      <input type="password" name="app_admin_password" value="" autocomplete="new-password" placeholder="{{ ap_status }}" />
     </label>
     <label>
       Post schedule (cron) <span class="muted">— requires app restart to take effect</span>

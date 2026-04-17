@@ -7,7 +7,7 @@ import logging
 import httpx
 
 from app.amazon import ProductInfo
-from app.publishers.base import PostResult, Publisher
+from app.publishers.base import PostResult, Publisher, sanitize_error_body
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class PinterestPublisher(Publisher):
             async with httpx.AsyncClient(timeout=60) as client:
                 resp = await client.post(f"{PINTEREST_API}/pins", json=body, headers=headers)
             if resp.status_code >= 400:
-                return PostResult(status="failed", message=resp.text[:500])
+                return PostResult(status="failed", message=sanitize_error_body(resp.text))
             remote_id = resp.json().get("id")
             return PostResult(status="success", remote_id=remote_id)
         except httpx.HTTPError as exc:
