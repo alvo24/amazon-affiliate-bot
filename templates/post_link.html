@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Post a link · Amazon Affiliate Bot{% endblock %}
+{% block content %}
+<h1>Post a link</h1>
+<p class="muted">
+  Paste an affiliate URL and a caption. The bot will post it to the platforms
+  you pick — no Amazon API needed.
+</p>
+
+{% if settings.dry_run %}
+<div class="alert alert-warn">
+  <strong>Dry-run mode is ON.</strong> Submitting this form will record the
+  attempt in your post history but will NOT publish to any platform. Set
+  <code>DRY_RUN=false</code> in your Fly secrets to go live.
+</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+{% if result %}
+<div class="alert {{ 'alert-error' if result.get('error') or result.posts_failed else 'alert-warn' }}">
+  <strong>Done.</strong>
+  attempted={{ result.posts_attempted }}
+  · success={{ result.posts_succeeded }}
+  · skipped={{ result.posts_skipped }}
+  · failed={{ result.posts_failed }}
+  {% if result.get('error') %}<br>Error: <code>{{ result.error }}</code>{% endif %}
+</div>
+<section class="card">
+  <h3>Per-platform results</h3>
+  <table>
+    <thead><tr><th>Platform</th><th>Status</th><th>Remote ID</th><th>Message</th></tr></thead>
+    <tbody>
+    {% for d in result.details %}
+      <tr>
+        <td>{{ d.platform }}</td>
+        <td>
+          <span class="badge {{ 'ok' if d.status == 'success' else ('warn' if d.status == 'skipped' else 'err') }}">
+            {{ d.status }}
+          </span>
+        </td>
+        <td class="muted"><code>{{ d.remote_id or '' }}</code></td>
+        <td class="muted">{{ d.message or '' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+<section class="card">
+  <form method="post" action="/post-link">
+    <label>
+      Affiliate URL <span class="muted">(include your <code>?tag=…</code>)</span>
+      <input type="url" name="url" value="{{ form.url }}" required
+             placeholder="https://www.amazon.com/dp/B08N5WRWNW?tag=yourtag-20" />
+    </label>
+
+    <label>
+      Image URL <span class="muted">(required for Instagram &amp; Pinterest)</span>
+      <input type="url" name="image_url" value="{{ form.image_url }}"
+             placeholder="https://m.media-amazon.com/images/I/…jpg" />
+    </label>
+
+    <label>
+      Caption
+      <textarea name="caption" rows="6" required
+                placeholder="What do you want to say about this product? Emojis + hashtags welcome.">{{ form.caption }}</textarea>
+    </label>
+
+    <fieldset style="border:none;padding:0;margin:0 0 1rem 0">
+      <legend class="muted">Post to</legend>
+      {% for p in enabled_platforms %}
+      <label style="display:inline-flex;align-items:center;gap:.4rem;margin-right:1rem;font-weight:normal">
+        <input type="checkbox" name="platforms" value="{{ p }}"
+               {% if p in form.platforms %}checked{% endif %} />
+        {{ p }}
+      </label>
+      {% endfor %}
+    </fieldset>
+
+    <button type="submit" class="btn btn-primary">Post now</button>
+  </form>
+</section>
+{% endblock %}

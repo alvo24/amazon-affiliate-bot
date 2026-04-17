@@ -30,6 +30,7 @@ class ProductInfo:
     affiliate_url: str
     features: list[str]
     browse_node: str | None = None
+    caption_override: str | None = None  # when set, publishers skip the template
 
 
 def build_affiliate_url(detail_url: str, partner_tag: str) -> str:

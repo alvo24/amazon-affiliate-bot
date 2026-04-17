@@ -29,6 +29,8 @@ class Publisher:
         raise NotImplementedError
 
     def render_caption(self, product: ProductInfo) -> str:
+        if product.caption_override:
+            return product.caption_override
         features_block = "\n".join(f"• {f}" for f in product.features[:3])
         template = self.settings.caption_template.replace("\\n", "\n")
         return template.format(

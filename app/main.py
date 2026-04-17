@@ -18,7 +18,7 @@ from app.config import get_settings
 from app.db import engine, init_db
 from app.models import Post, Product, RunLog
 from app.scheduler import get_scheduler, start_scheduler, stop_scheduler
-from app.service import run_once
+from app.service import post_manual, run_once
 
 logger = logging.getLogger(__name__)
 
@@ -144,6 +144,78 @@ async def run_now(_: None = Depends(require_login)):
     summary = await run_once()
     logger.info("Manual run complete: %s", summary)
     return RedirectResponse(url="/", status_code=303)
+
+
+@app.get("/post-link", response_class=HTMLResponse)
+async def post_link_form(request: Request, _: None = Depends(require_login)):
+    settings = get_settings()
+    return templates.TemplateResponse(
+        request,
+        "post_link.html",
+        {
+            "settings": settings,
+            "enabled_platforms": settings.platform_list,
+            "result": None,
+            "form": {"url": "", "caption": "", "image_url": "", "platforms": settings.platform_list},
+            "error": None,
+        },
+    )
+
+
+@app.post("/post-link", response_class=HTMLResponse)
+async def post_link_submit(
+    request: Request,
+    _: None = Depends(require_login),
+    url: str = Form(...),
+    caption: str = Form(...),
+    image_url: str = Form(""),
+    platforms: list[str] | None = Form(default=None),
+):
+    settings = get_settings()
+    cleaned_url = url.strip()
+    cleaned_caption = caption.strip()
+    cleaned_image = image_url.strip() or None
+    chosen = [p for p in (platforms or []) if p in settings.platform_list] or settings.platform_list
+
+    form_state = {
+        "url": cleaned_url,
+        "caption": cleaned_caption,
+        "image_url": cleaned_image or "",
+        "platforms": chosen,
+    }
+
+    if not cleaned_url or not cleaned_caption:
+        return templates.TemplateResponse(
+            request,
+            "post_link.html",
+            {
+                "settings": settings,
+                "enabled_platforms": settings.platform_list,
+                "result": None,
+                "form": form_state,
+                "error": "URL and caption are both required.",
+            },
+            status_code=400,
+        )
+
+    summary = await post_manual(
+        affiliate_url=cleaned_url,
+        caption=cleaned_caption,
+        image_url=cleaned_image,
+        platforms=chosen,
+    )
+
+    return templates.TemplateResponse(
+        request,
+        "post_link.html",
+        {
+            "settings": settings,
+            "enabled_platforms": settings.platform_list,
+            "result": summary,
+            "form": form_state,
+            "error": None,
+        },
+    )
 
 
 @app.get("/api/status")
