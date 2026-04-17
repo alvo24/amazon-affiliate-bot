@@ -44,3 +44,16 @@ class RunLog(SQLModel, table=True):
     posts_succeeded: int = 0
     posts_failed: int = 0
     error: str | None = None
+
+
+class SettingOverride(SQLModel, table=True):
+    """Runtime-editable override for a value that's otherwise env-driven.
+
+    Values stored here take precedence over the corresponding env var so the
+    user can paste credentials through the in-app Settings page without needing
+    shell access or a redeploy.
+    """
+
+    key: str = Field(primary_key=True)
+    value: str
+    updated_at: datetime = Field(default_factory=datetime.utcnow)

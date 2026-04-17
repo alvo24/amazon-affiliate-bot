@@ -11,7 +11,7 @@ from datetime import datetime
 from sqlmodel import Session, select
 
 from app.amazon import AmazonClient, ProductInfo
-from app.config import Settings, get_settings
+from app.config import Settings, get_effective_settings
 from app.db import engine
 from app.models import Post, Product, RunLog
 from app.publishers import (
@@ -91,7 +91,7 @@ async def run_once(settings: Settings | None = None) -> dict:
 
     Returns a summary dict usable by the dashboard / logs.
     """
-    settings = settings or get_settings()
+    settings = settings or get_effective_settings()
     started = datetime.utcnow()
     summary = {
         "started_at": started.isoformat(),
@@ -220,7 +220,7 @@ async def post_manual(
     Records a RunLog plus one Post row per platform. The user's `caption` is
     used verbatim (bypassing the ENV caption template).
     """
-    settings = settings or get_settings()
+    settings = settings or get_effective_settings()
     started = datetime.utcnow()
     summary: dict = {
         "started_at": started.isoformat(),

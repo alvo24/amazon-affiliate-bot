@@ -7,7 +7,7 @@ import logging
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.config import get_settings
+from app.config import get_effective_settings
 from app.service import run_once
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ def start_scheduler() -> AsyncIOScheduler:
     if _scheduler and _scheduler.running:
         return _scheduler
 
-    settings = get_settings()
+    settings = get_effective_settings()
     scheduler = AsyncIOScheduler(timezone=settings.timezone)
     try:
         trigger = CronTrigger.from_crontab(settings.post_schedule_cron, timezone=settings.timezone)

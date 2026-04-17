@@ -76,5 +76,68 @@ class Settings(BaseSettings):
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    """Return cached Settings singleton."""
+    """Return cached Settings singleton (env only, no DB overrides)."""
     return Settings()
+
+
+# Keys writable from the in-app Settings page. Booleans are stored as "true"/"false".
+OVERRIDABLE_KEYS: tuple[str, ...] = (
+    "dry_run",
+    "app_admin_password",
+    "amazon_access_key",
+    "amazon_secret_key",
+    "amazon_partner_tag",
+    "amazon_host",
+    "amazon_browse_nodes",
+    "facebook_page_id",
+    "facebook_page_access_token",
+    "instagram_business_account_id",
+    "instagram_access_token",
+    "pinterest_access_token",
+    "pinterest_board_id",
+    "post_schedule_cron",
+    "timezone",
+    "caption_template",
+    "enabled_platforms",
+)
+
+SECRET_KEYS: frozenset[str] = frozenset({
+    "app_admin_password",
+    "amazon_secret_key",
+    "facebook_page_access_token",
+    "instagram_access_token",
+    "pinterest_access_token",
+})
+
+
+def _coerce(key: str, value: str):
+    """Coerce a stored string value to the type expected by the Settings model."""
+    if key == "dry_run":
+        return value.strip().lower() in {"1", "true", "yes", "on"}
+    return value
+
+
+def load_overrides() -> dict[str, object]:
+    """Read all persisted overrides from the DB as a {key: coerced_value} dict."""
+    # Imported lazily to avoid a config<->db import cycle.
+    from sqlmodel import Session, select
+
+    from app.db import engine
+    from app.models import SettingOverride
+
+    with Session(engine) as session:
+        rows = session.exec(select(SettingOverride)).all()
+    return {
+        row.key: _coerce(row.key, row.value)
+        for row in rows
+        if row.key in OVERRIDABLE_KEYS
+    }
+
+
+def get_effective_settings() -> Settings:
+    """Return a Settings instance with DB overrides layered on top of env."""
+    base = get_settings()
+    overrides = load_overrides()
+    if not overrides:
+        return base
+    return base.model_copy(update=overrides)

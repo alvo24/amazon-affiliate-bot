@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Settings · Amazon Affiliate Bot{% endblock %}
+{% block content %}
+<h1>Settings</h1>
+<p class="muted">
+  Paste your credentials here. Values are stored in the app's database and
+  override environment variables at runtime — no redeploy or shell access
+  needed. Leave a field blank to fall back to the env var / default.
+</p>
+
+{% if saved %}
+<div class="alert alert-warn"><strong>Saved.</strong> Your new settings are active.</div>
+{% endif %}
+
+<form method="post" action="/settings">
+  <section class="card">
+    <h3>General</h3>
+    <label style="display:inline-flex;align-items:center;gap:.4rem;font-weight:normal">
+      <input type="checkbox" name="dry_run" value="1" {% if values.dry_run in ('true', 'True', '1') %}checked{% endif %} />
+      Dry-run mode (log posts but don't publish)
+    </label>
+    <label>
+      Admin password
+      <input type="password" name="app_admin_password" value="{{ values.app_admin_password }}" autocomplete="new-password" />
+    </label>
+    <label>
+      Post schedule (cron) <span class="muted">— requires app restart to take effect</span>
+      <input type="text" name="post_schedule_cron" value="{{ values.post_schedule_cron }}" placeholder="0 9,13,18 * * *" />
+    </label>
+    <label>
+      Timezone
+      <input type="text" name="timezone" value="{{ values.timezone }}" placeholder="UTC" />
+    </label>
+    <label>
+      Caption template
+      <textarea name="caption_template" rows="3">{{ values.caption_template }}</textarea>
+    </label>
+    <label>
+      Enabled platforms <span class="muted">— comma-separated: facebook,instagram,pinterest</span>
+      <input type="text" name="enabled_platforms" value="{{ values.enabled_platforms }}" />
+    </label>
+  </section>
+
+  <section class="card">
+    <h3>Facebook Page</h3>
+    <label>
+      Page ID <span class="muted">— numeric ID of your Facebook Page</span>
+      <input type="text" name="facebook_page_id" value="{{ values.facebook_page_id }}" autocomplete="off" />
+    </label>
+    <label>
+      Page Access Token <span class="muted">— long string starting with <code>EAA…</code></span>
+      <input type="password" name="facebook_page_access_token" value="{{ values.facebook_page_access_token }}" autocomplete="new-password" />
+    </label>
+  </section>
+
+  <section class="card">
+    <h3>Instagram Business</h3>
+    <label>
+      IG Business Account ID
+      <input type="text" name="instagram_business_account_id" value="{{ values.instagram_business_account_id }}" autocomplete="off" />
+    </label>
+    <label>
+      Access Token
+      <input type="password" name="instagram_access_token" value="{{ values.instagram_access_token }}" autocomplete="new-password" />
+    </label>
+  </section>
+
+  <section class="card">
+    <h3>Pinterest</h3>
+    <label>
+      Access Token
+      <input type="password" name="pinterest_access_token" value="{{ values.pinterest_access_token }}" autocomplete="new-password" />
+    </label>
+    <label>
+      Board ID
+      <input type="text" name="pinterest_board_id" value="{{ values.pinterest_board_id }}" autocomplete="off" />
+    </label>
+  </section>
+
+  <section class="card">
+    <h3>Amazon PA-API <span class="muted">(optional — only if using auto-posting)</span></h3>
+    <label>
+      Access Key
+      <input type="text" name="amazon_access_key" value="{{ values.amazon_access_key }}" autocomplete="off" />
+    </label>
+    <label>
+      Secret Key
+      <input type="password" name="amazon_secret_key" value="{{ values.amazon_secret_key }}" autocomplete="new-password" />
+    </label>
+    <label>
+      Partner Tag
+      <input type="text" name="amazon_partner_tag" value="{{ values.amazon_partner_tag }}" />
+    </label>
+    <label>
+      Amazon host
+      <input type="text" name="amazon_host" value="{{ values.amazon_host }}" placeholder="webservices.amazon.com" />
+    </label>
+    <label>
+      Browse nodes <span class="muted">— comma-separated category IDs</span>
+      <input type="text" name="amazon_browse_nodes" value="{{ values.amazon_browse_nodes }}" />
+    </label>
+  </section>
+
+  <button type="submit" class="btn btn-primary">Save settings</button>
+</form>
+
+<p class="muted" style="margin-top:1rem">
+  Tip: after saving a Facebook Page ID and Access Token, go back to the
+  <a href="/">dashboard</a> and the "Facebook Page" badge should switch to
+  <span class="badge ok">Configured</span>.
+</p>
+{% endblock %}

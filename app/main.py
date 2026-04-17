@@ -14,9 +14,9 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, desc, select
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.config import get_settings
+from app.config import OVERRIDABLE_KEYS, SECRET_KEYS, get_effective_settings, get_settings
 from app.db import engine, init_db
-from app.models import Post, Product, RunLog
+from app.models import Post, Product, RunLog, SettingOverride
 from app.scheduler import get_scheduler, start_scheduler, stop_scheduler
 from app.service import post_manual, run_once
 
@@ -78,7 +78,7 @@ async def login_form(request: Request):
 
 @app.post("/login")
 async def login(request: Request, password: str = Form(...)):
-    settings = get_settings()
+    settings = get_effective_settings()
     if secrets.compare_digest(password, settings.app_admin_password):
         request.session["authed"] = True
         return RedirectResponse(url="/", status_code=303)
@@ -95,7 +95,7 @@ async def logout(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request, _: None = Depends(require_login)):
-    settings = get_settings()
+    settings = get_effective_settings()
     scheduler = get_scheduler()
     next_run = None
     if scheduler:
@@ -148,7 +148,7 @@ async def run_now(_: None = Depends(require_login)):
 
 @app.get("/post-link", response_class=HTMLResponse)
 async def post_link_form(request: Request, _: None = Depends(require_login)):
-    settings = get_settings()
+    settings = get_effective_settings()
     return templates.TemplateResponse(
         request,
         "post_link.html",
@@ -169,9 +169,9 @@ async def post_link_submit(
     url: str = Form(...),
     caption: str = Form(...),
     image_url: str = Form(""),
-    platforms: list[str] | None = Form(default=None),
+    platforms: list[str] | None = Form(default=None),  # noqa: B008
 ):
-    settings = get_settings()
+    settings = get_effective_settings()
     cleaned_url = url.strip()
     cleaned_caption = caption.strip()
     cleaned_image = image_url.strip() or None
@@ -218,9 +218,64 @@ async def post_link_submit(
     )
 
 
+@app.get("/settings", response_class=HTMLResponse)
+async def settings_form(request: Request, _: None = Depends(require_login), saved: str = ""):
+    settings = get_effective_settings()
+    with Session(engine) as session:
+        rows = session.exec(select(SettingOverride)).all()
+    overrides = {r.key: r.value for r in rows}
+
+    def current(key: str) -> str:
+        val = overrides.get(key)
+        if val is None:
+            val = getattr(settings, key, "")
+            val = "" if val is None else str(val)
+        return val
+
+    has_override = {k: k in overrides for k in OVERRIDABLE_KEYS}
+    return templates.TemplateResponse(
+        request,
+        "settings.html",
+        {
+            "settings": settings,
+            "values": {k: current(k) for k in OVERRIDABLE_KEYS},
+            "secret_keys": SECRET_KEYS,
+            "has_override": has_override,
+            "saved": saved,
+        },
+    )
+
+
+@app.post("/settings")
+async def settings_submit(request: Request, _: None = Depends(require_login)):
+    form = await request.form()
+    with Session(engine) as session:
+        for key in OVERRIDABLE_KEYS:
+            if key == "dry_run":
+                new_val = "true" if form.get("dry_run") else "false"
+            else:
+                raw = form.get(key)
+                if raw is None:
+                    continue
+                new_val = str(raw).strip()
+
+            row = session.get(SettingOverride, key)
+            if new_val == "":
+                if row is not None:
+                    session.delete(row)
+                continue
+            if row is None:
+                session.add(SettingOverride(key=key, value=new_val))
+            else:
+                row.value = new_val
+                session.add(row)
+        session.commit()
+    return RedirectResponse(url="/settings?saved=1", status_code=303)
+
+
 @app.get("/api/status")
 async def api_status(_: None = Depends(require_login)):
-    settings = get_settings()
+    settings = get_effective_settings()
     scheduler = get_scheduler()
     next_run = None
     if scheduler:
