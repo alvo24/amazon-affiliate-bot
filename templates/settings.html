@@ -18,7 +18,20 @@
     <label style="display:inline-flex;align-items:center;gap:.4rem;font-weight:normal">
       <input type="checkbox" name="dry_run" value="1" {% if values.dry_run in ('true', 'True', '1') %}checked{% endif %} />
       Dry-run mode (log posts but don't publish)
+      <span class="muted">
+        — currently
+        {% if values.dry_run in ('true', 'True', '1') %}
+          <strong style="color:#0a7d2b">ON</strong> (safe; no real posts)
+        {% else %}
+          <strong style="color:#b42318">OFF</strong> (real posts will be published!)
+        {% endif %}
+      </span>
     </label>
+    <p class="muted" style="margin:.25rem 0 1rem 2rem">
+      <strong>Warning:</strong> unchecking this and saving will cause your next
+      <em>Post now</em> to publish to your real Facebook / Instagram / Pinterest
+      accounts. Leave it checked until your tokens are verified.
+    </p>
     <label>
       Admin password
       <input type="password" name="app_admin_password" value="{{ values.app_admin_password }}" autocomplete="new-password" />
