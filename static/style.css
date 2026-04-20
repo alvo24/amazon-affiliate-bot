@@ -1390,6 +1390,39 @@ tbody tr:nth-child(5) { animation-delay: 200ms; }
   100% { box-shadow: 0 0 0 0   rgba(124, 58, 237, 0); }
 }
 
+/* ==================================================================
+   NO-ICON MODE — hide every in-page SVG icon and tidy affected layouts
+   ================================================================== */
+
+/* Hide every in-page SVG. Favicon (outside DOM) is unaffected. */
+svg { display: none !important; }
+
+/* Kill empty icon wrappers */
+.feature-icon,
+.card h3 .platform-chip,
+.hero-preview .preview-tile svg,
+.nav-links a svg,
+.landing-nav-links a svg,
+.btn svg,
+.link-button svg {
+  display: none !important;
+}
+
+/* Tighten layouts that used to host icons */
+.feature-card h3 { margin-top: 0; }
+.feature-card { padding-top: 0.95rem; }
+.card h3 { gap: 0; }
+.logo-pill { padding: 0.5rem 1rem; }
+.logo-pill svg { display: none !important; }
+.preview-tile { padding-top: 0.7rem; }
+.preview-tile svg { display: none !important; }
+.nav-links a, .nav-links .link-button { gap: 0; }
+.btn { gap: 0; }
+.hero-actions .btn svg { display: none !important; }
+
+/* Platform-chip space is no longer needed in status-card h3 */
+.status-card h3 { padding-left: 0.25rem; }
+
 /* ---- Respect reduced-motion ---- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
