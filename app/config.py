@@ -50,6 +50,10 @@ class Settings(BaseSettings):
     post_schedule_cron: str = "0 9,13,18 * * *"
     timezone: str = "UTC"
 
+    # Content generator (optional OpenAI upgrade)
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
+
     # Posting
     caption_template: str = (
         "🔥 {title}\n\n💰 {price}\n\n{features}\n\n"
@@ -117,6 +121,8 @@ OVERRIDABLE_KEYS: tuple[str, ...] = (
     "timezone",
     "caption_template",
     "enabled_platforms",
+    "openai_api_key",
+    "openai_model",
 )
 
 SECRET_KEYS: frozenset[str] = frozenset({
@@ -127,6 +133,7 @@ SECRET_KEYS: frozenset[str] = frozenset({
     "pinterest_access_token",
     "twitter_api_secret",
     "twitter_access_token_secret",
+    "openai_api_key",
 })
 
 

@@ -52,6 +52,80 @@
 {% endif %}
 
 <section class="card">
+  <h3 style="margin-top:0">Step 1 · Generate content <span class="muted" style="font-weight:400">(optional)</span></h3>
+  <p class="muted" style="margin-top:0">
+    Paste the URL, click <strong>Generate content pack</strong>, and we'll produce hooks, captions,
+    a video script, story frames, CTAs, 10 hashtags and 3 angles — ready to copy-paste.
+    {% if settings.openai_api_key %}
+      <span class="badge ok">AI mode</span> using OpenAI for higher-quality output.
+    {% else %}
+      Add an <a href="/settings">OpenAI API key</a> in Settings for higher-quality output (optional).
+    {% endif %}
+  </p>
+  <form method="post" action="/post-link/generate">
+    <label>
+      Affiliate URL
+      <input type="url" name="url" value="{{ form.url }}" required
+             placeholder="https://www.amazon.com/dp/B08N5WRWNW?tag=yourtag-20" />
+    </label>
+    <input type="hidden" name="image_url" value="{{ form.image_url }}" />
+    <input type="hidden" name="caption" value="{{ form.caption }}" />
+    <button type="submit" class="btn btn-primary">Generate content pack</button>
+  </form>
+</section>
+
+{% if pack %}
+<section class="card">
+  <h3 style="margin-top:0">
+    Content pack
+    <span class="badge {{ 'ok' if pack.engine == 'openai' else 'warn' }}" style="margin-left:.5rem">{{ pack.engine }}</span>
+  </h3>
+  <p class="muted" style="margin-top:0">
+    Product: <strong>{{ pack.product.short_title }}</strong>
+    {% if pack.product.price %} · {{ pack.product.price }}{% endif %}
+    · source: <code>{{ pack.product.source }}</code>
+  </p>
+
+  <h4 style="margin:1rem 0 .25rem">3 Viral hooks</h4>
+  <ol style="padding-left:1.25rem;margin:.25rem 0 .75rem">
+    {% for h in pack.hooks %}<li style="margin:.2rem 0">{{ h }}</li>{% endfor %}
+  </ol>
+
+  <h4 style="margin:1rem 0 .25rem">Caption A <span class="muted" style="font-weight:400">(direct)</span></h4>
+  <pre style="white-space:pre-wrap;margin:.25rem 0;background:#f8f7ff;padding:.75rem;border-radius:8px;border:1px solid #eee">{{ pack.caption_a }}</pre>
+
+  <h4 style="margin:1rem 0 .25rem">Caption B <span class="muted" style="font-weight:400">(story)</span></h4>
+  <pre style="white-space:pre-wrap;margin:.25rem 0;background:#f8f7ff;padding:.75rem;border-radius:8px;border:1px solid #eee">{{ pack.caption_b }}</pre>
+
+  <h4 style="margin:1rem 0 .25rem">Short viral video script <span class="muted" style="font-weight:400">(15–25s)</span></h4>
+  <pre style="white-space:pre-wrap;margin:.25rem 0;background:#f8f7ff;padding:.75rem;border-radius:8px;border:1px solid #eee">{{ pack.video_script }}</pre>
+
+  <h4 style="margin:1rem 0 .25rem">Story / post sequence</h4>
+  <ol style="padding-left:1.25rem;margin:.25rem 0 .75rem">
+    {% for s in pack.story_sequence %}<li style="margin:.2rem 0">{{ s }}</li>{% endfor %}
+  </ol>
+
+  <h4 style="margin:1rem 0 .25rem">CTAs</h4>
+  <p style="margin:.25rem 0"><strong>Hard sell:</strong> {{ pack.hard_cta }}</p>
+  <p style="margin:.25rem 0"><strong>Soft sell:</strong> {{ pack.soft_cta }}</p>
+
+  <h4 style="margin:1rem 0 .25rem">Hashtags</h4>
+  <p class="muted" style="margin:.25rem 0">{{ pack.hashtags | join(' ') }}</p>
+
+  <h4 style="margin:1rem 0 .25rem">Angles</h4>
+  <p style="margin:.25rem 0"><strong>Luxury:</strong> {{ pack.angle_luxury }}</p>
+  <p style="margin:.25rem 0"><strong>Budget:</strong> {{ pack.angle_budget }}</p>
+  <p style="margin:.25rem 0"><strong>Problem-solution:</strong> {{ pack.angle_problem }}</p>
+
+  <p class="muted" style="margin-top:1rem">
+    The <em>URL</em>, <em>image</em> and <em>caption</em> fields below have been pre-filled with
+    Caption A and the scraped image. Tweak if you want, then tap <strong>Post now</strong>.
+  </p>
+</section>
+{% endif %}
+
+<section class="card">
+  <h3 style="margin-top:0">Step 2 · Post</h3>
   <form method="post" action="/post-link">
     <label>
       Affiliate URL <span class="muted">(include your <code>?tag=…</code>)</span>

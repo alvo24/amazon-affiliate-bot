@@ -118,6 +118,24 @@
   </section>
 
   <section class="card">
+    <h3>Content generator <span class="muted">(optional — higher-quality output via OpenAI)</span></h3>
+    <p class="muted" style="margin-top:0">
+      Without a key the bot generates content from built-in templates.
+      Paste an OpenAI API key to upgrade to AI-written copy on the
+      <a href="/post-link">Post-a-link</a> page.
+      Get one at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a>.
+    </p>
+    <label>
+      OpenAI API key <span class="muted">— starts with <code>sk-…</code></span>
+      <input type="password" name="openai_api_key" value="{{ values.openai_api_key }}" autocomplete="new-password" placeholder="sk-..." />
+    </label>
+    <label>
+      Model <span class="muted">— default <code>gpt-4o-mini</code> (cheap + fast)</span>
+      <input type="text" name="openai_model" value="{{ values.openai_model }}" placeholder="gpt-4o-mini" />
+    </label>
+  </section>
+
+  <section class="card">
     <h3>Amazon PA-API <span class="muted">(optional — only if using auto-posting)</span></h3>
     <label>
       Access Key

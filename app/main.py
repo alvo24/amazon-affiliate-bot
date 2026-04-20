@@ -16,6 +16,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import OVERRIDABLE_KEYS, SECRET_KEYS, get_effective_settings, get_settings
 from app.db import engine, init_db
+from app.generator import build_content_pack
 from app.models import Post, Product, RunLog, SettingOverride
 from app.scheduler import get_scheduler, start_scheduler, stop_scheduler
 from app.service import post_manual, run_once
@@ -159,6 +160,92 @@ async def post_link_form(request: Request, _: None = Depends(require_login)):
             "result": None,
             "form": {"url": "", "caption": "", "image_url": "", "platforms": settings.platform_list},
             "error": None,
+            "pack": None,
+        },
+    )
+
+
+@app.post("/post-link/generate", response_class=HTMLResponse)
+async def post_link_generate(
+    request: Request,
+    _: None = Depends(require_login),
+    url: str = Form(...),
+    image_url: str = Form(""),
+    caption: str = Form(""),
+):
+    """Generate a full affiliate content pack from a URL (no posting)."""
+    settings = get_effective_settings()
+    cleaned_url = url.strip()
+    cleaned_image = image_url.strip()
+    existing_caption = caption.strip()
+
+    if not cleaned_url:
+        return templates.TemplateResponse(
+            request,
+            "post_link.html",
+            {
+                "settings": settings,
+                "enabled_platforms": settings.platform_list,
+                "result": None,
+                "form": {
+                    "url": "",
+                    "caption": existing_caption,
+                    "image_url": cleaned_image,
+                    "platforms": settings.platform_list,
+                },
+                "error": "Paste an affiliate URL to generate content.",
+                "pack": None,
+            },
+            status_code=400,
+        )
+
+    try:
+        pack = build_content_pack(
+            url=cleaned_url,
+            image_hint=cleaned_image,
+            openai_api_key=settings.openai_api_key,
+        )
+    except Exception as exc:  # noqa: BLE001 - surfaced to UI
+        logger.exception("content generation failed for %s", cleaned_url)
+        return templates.TemplateResponse(
+            request,
+            "post_link.html",
+            {
+                "settings": settings,
+                "enabled_platforms": settings.platform_list,
+                "result": None,
+                "form": {
+                    "url": cleaned_url,
+                    "caption": existing_caption,
+                    "image_url": cleaned_image,
+                    "platforms": settings.platform_list,
+                },
+                "error": f"Generation failed: {exc}",
+                "pack": None,
+            },
+            status_code=500,
+        )
+
+    # If user didn't have a caption yet, pre-fill with caption A.
+    new_caption = existing_caption or pack.caption_a
+    # If user didn't have an image yet but scrape found one, pre-fill.
+    new_image = cleaned_image or pack.product.image
+
+    return templates.TemplateResponse(
+        request,
+        "post_link.html",
+        {
+            "settings": settings,
+            "enabled_platforms": settings.platform_list,
+            "result": None,
+            "form": {
+                "url": cleaned_url,
+                "caption": new_caption,
+                "image_url": new_image,
+                "platforms": settings.platform_list,
+            },
+            "error": None,
+            "pack": pack,
         },
     )
 
@@ -195,6 +282,7 @@ async def post_link_submit(
                 "result": None,
                 "form": form_state,
                 "error": "URL and caption are both required.",
+                "pack": None,
             },
             status_code=400,
         )
@@ -215,6 +303,7 @@ async def post_link_submit(
             "result": summary,
             "form": form_state,
             "error": None,
+            "pack": None,
         },
     )
 
