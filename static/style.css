@@ -1391,37 +1391,77 @@ tbody tr:nth-child(5) { animation-delay: 200ms; }
 }
 
 /* ==================================================================
-   NO-ICON MODE — hide every in-page SVG icon and tidy affected layouts
+   NO-ICON MODE v2 — strip every decorative block so text is the UI
    ================================================================== */
 
-/* Hide every in-page SVG. Favicon (outside DOM) is unaffected. */
+/* Every in-page SVG is already removed from templates, but keep a
+   belt-and-braces rule so any future inline <svg> stays hidden. */
 svg { display: none !important; }
 
-/* Kill empty icon wrappers */
+/* Kill the decorative icon boxes themselves (not just their contents). */
 .feature-icon,
-.card h3 .platform-chip,
-.hero-preview .preview-tile svg,
-.nav-links a svg,
-.landing-nav-links a svg,
-.btn svg,
-.link-button svg {
+.platform-chip,
+.brand-mark,
+.hero-preview,
+.hero-browser,
+.browser-dots,
+.preview-tile,
+.preview-row,
+.logo-cloud .logo-pill::before,
+.eyebrow-dot,
+.step-num::before {
   display: none !important;
 }
 
-/* Tighten layouts that used to host icons */
-.feature-card h3 { margin-top: 0; }
-.feature-card { padding-top: 0.95rem; }
-.card h3 { gap: 0; }
-.logo-pill { padding: 0.5rem 1rem; }
-.logo-pill svg { display: none !important; }
-.preview-tile { padding-top: 0.7rem; }
-.preview-tile svg { display: none !important; }
-.nav-links a, .nav-links .link-button { gap: 0; }
-.btn { gap: 0; }
-.hero-actions .btn svg { display: none !important; }
+/* The step-number circle is now just a plain inline number */
+.step-num {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-strong, #111) !important;
+  font-family: var(--font-display, serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 0.55rem 0 0 !important;
+  animation: none !important;
+}
 
-/* Platform-chip space is no longer needed in status-card h3 */
-.status-card h3 { padding-left: 0.25rem; }
+/* Hero becomes single-column — remove the mock-browser column entirely */
+.hero-landing-inner { grid-template-columns: 1fr !important; max-width: 48rem; }
+.hero-preview, .hero-preview * { display: none !important; }
+
+/* Platform logo pills: just a neutral text chip, no logo box */
+.logo-pill {
+  padding: 0.45rem 0.85rem !important;
+  border: 1px solid rgba(17, 17, 17, 0.08) !important;
+  background: #fff !important;
+  color: var(--text, #222) !important;
+  box-shadow: none !important;
+}
+.logo-pill span { font-weight: 500; }
+
+/* Feature cards: text-only layout */
+.feature-card { padding-top: 1.1rem; }
+.feature-card h3 { margin-top: 0; }
+
+/* Nav: pure text links, no leading space for icons */
+.nav-links a, .nav-links .link-button,
+.landing-nav-links a { gap: 0 !important; }
+.btn { gap: 0.35rem; }
+
+/* Brand becomes a plain wordmark */
+.brand { gap: 0.25rem !important; }
+.brand-text {
+  font-family: var(--font-display, serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Status cards: tidy the h3 now that the colored chip is gone */
+.status-card h3 { padding-left: 0.25rem; gap: 0; }
+.status-card h3 .platform-chip { display: none !important; }
 
 /* ---- Respect reduced-motion ---- */
 @media (prefers-reduced-motion: reduce) {
