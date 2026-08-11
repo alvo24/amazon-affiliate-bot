@@ -54,6 +54,6 @@ class SettingOverride(SQLModel, table=True):
     shell access or a redeploy.
     """
 
-    key: str = Field(primary_key=True)
+    key: str = Field(primary_key=True, index=True)
     value: str
     updated_at: datetime = Field(default_factory=datetime.utcnow)
